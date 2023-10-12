@@ -16,6 +16,7 @@ import com.journeyapps.barcodescanner.ScanOptions;
 
 public class MainActivity extends AppCompatActivity {
     Button btn_scan;
+    String package_to_be_sent;
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +36,13 @@ public class MainActivity extends AppCompatActivity {
         options.setCaptureActivity(CaptureAct.class);
         qrLauncher.launch(options);
     }
+    //id types:
+    // 1 = qr code sent Id
     ActivityResultLauncher<ScanOptions> qrLauncher = registerForActivityResult(new ScanContract(), result -> {
        if(result.getContents() != null){
+            package_to_be_sent = "1 " + result.getContents();
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle("Result");
+            builder.setTitle("Sent to server");
             builder.setMessage(result.getContents());
             builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
