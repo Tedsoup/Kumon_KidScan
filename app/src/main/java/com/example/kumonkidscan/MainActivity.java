@@ -14,7 +14,27 @@ import android.widget.Button;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
+import android.widget.TextView;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
+
+    TextView textView;
+    RequestQueue queue;
+
     Button btn_scan;
     String package_to_be_sent;
     @SuppressLint("MissingInflatedId")
@@ -29,7 +49,33 @@ public class MainActivity extends AppCompatActivity {
 
         });
     }
+    public  void volleyrequest(String studentName){
+        queue = Volley.newRequestQueue(this);
+        String url = "https://scannerdatabase.sites.tjhsst.edu/hbs?name=";
+        url+= studentName;
+        StringRequest request = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+//                try {
+//                    //format response to JSON object called "data"
+//                    JSONObject object = new JSONObject("{\"data\":"+response+"}");
+//                    //conver object to an array of objects
+//                    JSONArray array = object.getJSONArray("data");
+//                    //get first object and display its id
+//                    textView.setText("id: " + array.getJSONObject(0).getString("id"));
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                System.out.println("volley error"+ error.toString());
+            }
+        });
+        queue.add(request);
 
+    }
     private void scanCode() {
         ScanOptions options = new ScanOptions();
         options.setOrientationLocked(true);
@@ -40,9 +86,10 @@ public class MainActivity extends AppCompatActivity {
     // 1 = qr code sent Id
     ActivityResultLauncher<ScanOptions> qrLauncher = registerForActivityResult(new ScanContract(), result -> {
        if(result.getContents() != null){
-            package_to_be_sent = "1 " + result.getContents();
+            package_to_be_sent = result.getContents();
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setTitle("Sent to server");
+            volleyrequest(package_to_be_sent);
             builder.setMessage(result.getContents());
             builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 @Override
